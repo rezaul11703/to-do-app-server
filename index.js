@@ -4,6 +4,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const ObjectId = require("mongodb").ObjectId;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -19,17 +20,34 @@ async function run() {
   try {
     client.connect();
     const toDOList = client.db("CreateList").collection("dotask");
+    const completeList = client.db("CreateList").collection("complete");
     app.post("/todo", async (req, res) => {
       const newlist = req.body;
       const result = await toDOList.insertOne(newlist);
-      console.log(result);
       res.send(result);
+    });
+    app.post("/completelist", async (req, res) => {
+      const newlist = req.body;
+      const result = await completeList.insertOne(newlist);
+      res.send(result);
+    });
+    app.get("/completelist", async (req, res) => {
+      const query = {};
+      const cursor = completeList.find(query);
+      const users = await cursor.toArray();
+      res.send(users);
     });
     app.get("/todo", async (req, res) => {
       const query = {};
       const cursor = toDOList.find(query);
       const users = await cursor.toArray();
       res.send(users);
+    });
+    app.delete("/todo/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await toDOList.deleteOne(query);
+      res.send(result);
     });
     app.listen(port, () => {
       console.log("listening to the port", port);

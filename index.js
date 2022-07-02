@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 const ObjectId = require("mongodb").ObjectId;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 const uri =
   "mongodb+srv://db-todo1:72XVa7s1Tq6TOPMT@cluster0.sot2j.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {
@@ -47,6 +47,20 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await toDOList.deleteOne(query);
+      res.send(result);
+    });
+    app.put("/todo/:id", async (req, res) => {
+      const id = req.params.id;
+      let updatedtask = req.body;
+      console.log(updatedtask.task);
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: false };
+      let updateDoc = {
+        $set: {
+          task: updatedtask.task,
+        },
+      };
+      const result = await toDOList.updateOne(query, updateDoc, options);
       res.send(result);
     });
     app.listen(port, () => {

@@ -54,7 +54,7 @@ async function run() {
       let updatedtask = req.body;
       console.log(updatedtask.task);
       const query = { _id: ObjectId(id) };
-      const options = { upsert: false };
+      const options = { upsert: true };
       let updateDoc = {
         $set: {
           task: updatedtask.task,
